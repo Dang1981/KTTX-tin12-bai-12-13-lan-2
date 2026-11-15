@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trình Chiếu Đề Trắc Nghiệm Song Song - Trường THPT Bình Tân</title>
+    <style>
+        :root {
+            --bg-main: #f1f5f9;
+            --text-main: #0f172a;
+            --header-bg: #0f172a;
+            --toolbar-bg: #1e293b;
+            --left-primary: #1e40af;
+            --left-dark: #172554;
+            --left-light: #eff6ff;
+            --left-border: #bfdbfe;
+            --right-primary: #065f46;
+            --right-dark: #022c22;
+            --right-light: #ecfdf5;
+            --right-border: #a7f3d0;
+            --accent-amber: #f59e0b;
+            --accent-red: #dc2626;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* BỐ CỤC CHÍNH TOÀN MÀN HÌNH */
+        .app-wrapper {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* HEADER & BẢNG ĐIỀU KHIỂN GIÁO VIÊN */
+        .top-header {
+            background-color: var(--header-bg);
+            color: #ffffff;
+            flex-shrink: 0;
+            border-bottom: 2px solid #334155;
+            z-index: 20;
+        }
+
+        .header-row-1 {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 8px 14px;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .brand-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            border: 2px solid #60a5fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 16px;
+            color: #ffffff;
+            flex-shrink: 0;
+        }
+
+        .brand-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: #fcd34d;
+            letter-spacing: 0.3px;
+            line-height: 1.25;
+        }
+
+        .brand-sub {
+            font-size: 12.5px;
+            color: #cbd5e1;
+            margin-top: 2px;
+        }
+
+        .brand-sub strong {
+            color: #ffffff;
+        }
+
+        /* ĐỒNG HỒ ĐẾM NGƯỢC */
+        .timer-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #1e293b;
+            padding: 5px 10px;
+            border-radius: 10px;
+            border: 1px solid #334155;
+        }
+
+        .timer-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+        }
+
+        .timer-display {
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 22px;
+            font-weight: 800;
+            color: #34d399;
+            background-color: #020617;
+            padding: 2px 10px;
+            border-radius: 7px;
+            border: 1px solid #334155;
+            letter-spacing: 1px;
+            min-width: 82px;
+            text-align: center;
+        }
+
+        .timer-warning {
+            color: #fbbf24 !important;
+        }
+
+        .timer-critical {
+            animation: blinkWarn 1s infinite;
+        }
+
+        @keyframes blinkWarn {
+            0%, 100% { background-color: #dc2626; color: #ffffff; border-color: #fca5a5; }
+            50% { background-color: #450a0a; color: #fecaca; border-color: #dc2626; }
+        }
+
+        /* THANH CÔNG CỤ ĐIỀU KHIỂN DÒNG 2 */
+        .header-row-2 {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 6px 14px;
+            background-color: var(--toolbar-bg);
+            font-size: 12.5px;
+        }
+
+        .tool-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tool-label {
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .btn {
+            border: 1px solid transparent;
+            border-radius: 8px;
+            padding: 6px 11px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.15s, transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-family: inherit;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn-slate {
+            background-color: #334155;
+            color: #f8fafc;
+            border-color: #475569;
+        }
+        .btn-slate:hover:not(:disabled) {
+            background-color: #475569;
+        }
+
+        .btn-emerald {
+            background-color: #059669;
+            color: #ffffff;
+        }
+        .btn-emerald:hover:not(:disabled) {
+            background-color: #10b981;
+        }
+
+        .btn-amber {
+            background-color: #f59e0b;
+            color: #0f172a;
+            font-weight: 800;
+        }
+        .btn-amber:hover:not(:disabled) {
+            background-color: #fbbf24;
+        }
+
+        .btn-blue {
+            background-color: #2563eb;
+            color: #ffffff;
+        }
+        .btn-blue:hover:not(:disabled) {
+            background-color: #3b82f6;
+        }
+
+        .btn-indigo {
+            background-color: #4f46e5;
+            color: #ffffff;
+        }
+        .btn-indigo:hover:not(:disabled) {
+            background-color: #6366f1;
+        }
+
+        .btn-red {
+            background-color: #dc2626;
+            color: #ffffff;
+            border-color: #f87171;
+        }
+        .btn-red:hover:not(:disabled) {
+            background-color: #ef4444;
+        }
+
+        .select-ctrl {
+            background-color: #334155;
+            color: #ffffff;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            padding: 5px 8px;
+            font-size: 12.5px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            outline: none;
+        }
+        .select-ctrl:hover {
+            background-color: #475569;
+        }
+
+        .pill-box {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: #0f172a;
+            padding: 3px 8px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+        }
+
+        .page-indicator {
+            font-weight: 800;
+            color: #fcd34d;
+            min-width: 105px;
+            text-align: center;
+        }
+
+        .font-indicator {
+            font-family: 'Consolas', monospace;
+            font-weight: 700;
+            color: #38bdf8;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        /* KHU VỰC CHIA ĐÔI 2 MÀN HÌNH SONG SONG (50% - 50%) */
+        .split-main {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .exam-column {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .exam-column.left-col {
+            border-right: 3px solid #1e293b;
+            background-color: #f8fafc;
+        }
+
+        .exam-column.right-col {
+            border-left: 3px solid #1e293b;
+            background-color: #f0fdf4;
+        }
+
+        /* THANH TIÊU ĐỀ TỪNG MÃ ĐỀ */
+        .col-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 16px;
+            color: #ffffff;
+            flex-shrink: 0;
+        }
+
+        .left-col .col-header {
+            background-color: var(--left-primary);
+            border-bottom: 3px solid var(--left-dark);
+        }
+
+        .right-col .col-header {
+            background-color: var(--right-primary);
+            border-bottom: 3px solid var(--right-dark);
+        }
+
+        .col-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .seat-badge {
+            background-color: #ffffff;
+            font-weight: 900;
+            font-size: 13px;
+            padding: 3px 10px;
+            border-radius: 6px;
+            letter-spacing: 0.4px;
+        }
+
+        .left-col .seat-badge {
+            color: var(--left-primary);
+        }
+
+        .right-col .seat-badge {
+            color: var(--right-primary);
+        }
+
+        .code-label {
+            font-weight: 800;
+            font-size: 15px;
+            letter-spacing: 0.5px;
+        }
+
+        .code-input {
+            width: 76px;
+            font-size: 17px;
+            font-weight: 900;
+            text-align: center;
+            padding: 2px 6px;
+            border-radius: 6px;
+            border: 2px solid rgba(255, 255, 255, 0.45);
+            background-color: rgba(0, 0, 0, 0.3);
+            color: #fde047;
+            font-family: inherit;
+            outline: none;
+        }
+        .code-input:focus {
+            border-color: #fde047;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .col-hint {
+            font-size: 12px;
+            font-weight: 600;
+            background-color: rgba(0, 0, 0, 0.25);
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* VÙNG CUỘN CHỨA CÂU HỎI */
+        .exam-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .exam-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .exam-scroll::-webkit-scrollbar-track {
+            background: #e2e8f0;
+        }
+        .exam-scroll::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 4px;
+        }
+
+        /* THẺ CÂU HỎI */
+        .q-card {
+            background-color: #ffffff;
+            border-radius: 14px;
+            padding: 14px 16px;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+            border: 2px solid #cbd5e1;
+        }
+
+        .left-col .q-card {
+            border-color: var(--left-border);
+        }
+
+        .right-col .q-card {
+            border-color: var(--right-border);
+        }
+
+        .q-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .q-num-badge {
+            font-weight: 800;
+            font-size: 0.88em;
+            padding: 4px 10px;
+            border-radius: 8px;
+            color: #ffffff;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .left-col .q-num-badge {
+            background-color: var(--left-primary);
+        }
+
+        .right-col .q-num-badge {
+            background-color: var(--right-primary);
+        }
+
+        .q-text {
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.42;
+            flex: 1;
+            word-break: break-word;
+        }
+
+        .inline-code {
+            font-family: 'Consolas', 'Courier New', monospace;
+            background-color: #f1f5f9;
+            color: #b91c1c;
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-size: 0.92em;
+            border: 1px solid #cbd5e1;
+            font-weight: 700;
+        }
+
+        .code-snippet {
+            font-family: 'Consolas', 'Courier New', monospace;
+            background-color: #0f172a;
+            color: #f8fafc;
+            border-left: 4px solid #38bdf8;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 0.86em;
+            line-height: 1.45;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* LƯỚI 4 ĐÁP ÁN A, B, C, D */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .options-grid.two-cols {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .opt-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 2px solid #cbd5e1;
+            background-color: #ffffff;
+            color: #1e293b;
+            line-height: 1.38;
+        }
+
+        .opt-letter {
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            font-weight: 800;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border: 1px solid transparent;
+        }
+
+        .left-col .opt-letter {
+            background-color: #dbeafe;
+            color: #1e3a8a;
+            border-color: #93c5fd;
+        }
+
+        .right-col .opt-letter {
+            background-color: #d1fae5;
+            color: #064e3b;
+            border-color: #6ee7b7;
+        }
+
+        .opt-text {
+            flex: 1;
+            word-break: break-word;
+            padding-top: 2px;
+        }
+
+        /* TÔ SÁNG ĐÁP ÁN ĐÚNG KHI BẤM "HIỆN ĐÁP ÁN" */
+        .opt-item.is-correct-shown {
+            background-color: #bbf7d0 !important;
+            border-color: #16a34a !important;
+            color: #052e16 !important;
+            font-weight: 800 !important;
+            box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.35);
+        }
+
+        .opt-item.is-correct-shown .opt-letter {
+            background-color: #15803d !important;
+            color: #ffffff !important;
+            border-color: #14532d !important;
+        }
+
+        /* THÔNG BÁO TOAST */
+        .toast-box {
+            position: fixed;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #0f172a;
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 1px solid #475569;
+            font-size: 13.5px;
+            font-weight: 700;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        .toast-box.show {
+            opacity: 1;
+        }
+
+        /* CỬA SỔ MODAL (MA TRẬN ĐÁP ÁN & NHẬP ĐỀ) */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(2, 6, 23, 0.78);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            padding: 16px;
+        }
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-dialog {
+            background-color: #ffffff;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 920px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border: 1px solid #cbd5e1;
+        }
+
+        .modal-header {
+            background-color: #0f172a;
+            color: #ffffff;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .modal-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: #fcd34d;
+        }
+
+        .modal-sub {
+            font-size: 12px;
+            color: #cbd5e1;
+            margin-top: 2px;
+        }
+
+        .modal-body {
+            padding: 18px 20px;
+            overflow-y: auto;
+            flex: 1;
+            user-select: text;
+        }
+
+        .modal-footer {
+            padding: 12px 20px;
+            background-color: #f1f5f9;
+            border-top: 1px solid #cbd5e1;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        /* BẢNG MA TRẬN ĐÁP ÁN */
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .matrix-card {
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .matrix-card.left-m { border-color: var(--left-primary); }
+        .matrix-card.right-m { border-color: var(--right-primary); }
+
+        .matrix-card-title {
+            color: #ffffff;
+            font-weight: 800;
+            text-align: center;
+            padding: 8px;
+            font-size: 15px;
+        }
+        .left-m .matrix-card-title { background-color: var(--left-primary); }
+        .right-m .matrix-card-title { background-color: var(--right-primary); }
+
+        .matrix-sub-tables {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 12px;
+        }
+
+        .ans-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 13.5px;
+        }
+        .ans-table th, .ans-table td {
+            border: 1px solid #cbd5e1;
+            padding: 5px 4px;
+        }
+        .ans-table th {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            font-weight: 800;
+        }
+        .ans-table tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        .ans-letter {
+            font-weight: 900;
+            color: #dc2626;
+            font-size: 15px;
+        }
+        .ans-orig {
+            font-size: 11.5px;
+            color: #64748b;
+        }
+
+        .matrix-stats-bar {
+            background-color: #f8fafc;
+            border-bottom: 1px solid #cbd5e1;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .stat-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background-color: #ffffff;
+            border: 1px solid #94a3b8;
+            border-radius: 6px;
+            padding: 2px 8px;
+            color: #0f172a;
+        }
+
+        .stat-chip b {
+            color: #dc2626;
+        }
+
+        /* FORM NHẬP ĐỀ */
+        .guide-box {
+            background-color: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 12.5px;
+            color: #1e3a8a;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .import-textarea {
+            width: 100%;
+            height: 310px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            padding: 12px;
+            border: 2px solid #94a3b8;
+            border-radius: 10px;
+            outline: none;
+            resize: vertical;
+        }
+        .import-textarea:focus {
+            border-color: #2563eb;
+        }
+
+        /* RESPONSIVE CHO MÀN HÌNH NHỎ & CHẾ ĐỘ IN */
+        @media (max-width: 900px) {
+            html, body {
+                overflow: auto;
+                height: auto;
+            }
+            .app-wrapper {
+                height: auto;
+            }
+            .split-main {
+                grid-template-columns: 1fr;
+                overflow: visible;
+            }
+            .exam-column.left-col {
+                border-right: none;
+                border-bottom: 4px solid #1e293b;
+            }
+            .exam-column.right-col {
+                border-left: none;
+            }
+            .matrix-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media print {
+            .no-print, .app-wrapper {
+                display: none !important;
+            }
+            body, html {
+                overflow: visible !important;
+                height: auto !important;
+                background: #ffffff !important;
+            }
+            #answerModal {
+                display: block !important;
+                position: static !important;
+                background: #ffffff !important;
+                padding: 0 !important;
+            }
+            .modal-dialog {
+                box-shadow: none !important;
+                border: none !important;
+                max-height: none !important;
+                max-width: 100% !important;
+            }
+            .modal-header {
+                background: #ffffff !important;
+                color: #000000 !important;
+                border-bottom: 2px solid #000000;
+            }
+            .modal-title {
+                color: #000000 !important;
+            }
+            .modal-sub {
+                color: #333333 !important;
+            }
+            .modal-footer {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-wrapper">
+    <!-- THANH ĐIỀU KHIỂN GIÁO VIÊN -->
+    <header class="top-header no-print">
+        <div class="header-row-1">
+            <div class="brand-box">
+                <div class="brand-logo">BT</div>
+                <div>
+                    <div class="brand-title">TRƯỜNG THPT BÌNH TÂN &bull; KIỂM TRA THƯỜNG XUYÊN 2 (TIN HỌC 12)</div>
+                    <div class="brand-sub">Giáo viên: <strong>Nguyễn Hoàng Hải Đăng</strong> &bull; Nội dung: Bài 12 (Tạo biểu mẫu) &amp; Bài 13 (Vai trò của CSS)</div>
+                </div>
+            </div>
+
+            <!-- ĐỒNG HỒ ĐẾM NGƯỢC -->
+            <div class="timer-box">
+                <span class="timer-label">Thời gian:</span>
+                <div id="timerDisplay" class="timer-display">15:00</div>
+                <button id="btnTimerToggle" class="btn btn-emerald" onclick="toggleTimer()">▶ Bắt đầu</button>
+                <button class="btn btn-slate" onclick="resetTimer()" title="Đặt lại đồng hồ">↺</button>
+                <select id="timerPreset" class="select-ctrl" onchange="changeTimerPreset(this.value)" title="Chọn thời gian làm bài">
+                    <option value="10">10 phút</option>
+                    <option value="15" selected>15 phút</option>
+                    <option value="20">20 phút</option>
+                    <option value="30">30 phút</option>
+                    <option value="45">45 phút</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="header-row-2">
+            <!-- NHÓM 1: PHÂN TRANG & CỠ CHỮ -->
+            <div class="tool-group">
+                <span class="tool-label">Hiển thị:</span>
+                <select id="perPageSelect" class="select-ctrl" onchange="changePerPage(this.value)">
+                    <option value="1">1 câu / trang (Chữ rất lớn)</option>
+                    <option value="2">2 câu / trang</option>
+                    <option value="3" selected>3 câu / trang (Chuẩn máy chiếu)</option>
+                    <option value="5">5 câu / trang</option>
+                    <option value="30">Tất cả 30 câu (Cuộn)</option>
+                </select>
+
+                <div class="pill-box">
+                    <button id="btnPrev" class="btn btn-slate" style="padding: 3px 8px;" onclick="prevPage()" title="Trang trước (Phím mũi tên Trái)">◀ Trước</button>
+                    <span id="pageIndicator" class="page-indicator">Câu 1 - 3 / 30</span>
+                    <button id="btnNext" class="btn btn-slate" style="padding: 3px 8px;" onclick="nextPage()" title="Trang sau (Phím mũi tên Phải)">Sau ▶</button>
+                </div>
+
+                <div class="pill-box">
+                    <span class="tool-label">Cỡ chữ:</span>
+                    <button class="btn btn-slate" style="padding: 3px 8px;" onclick="adjustFontSize(-2)" title="Giảm cỡ chữ">A-</button>
+                    <span id="fontSizeLabel" class="font-indicator">19px</span>
+                    <button class="btn btn-slate" style="padding: 3px 8px;" onclick="adjustFontSize(2)" title="Tăng cỡ chữ">A+</button>
+                </div>
+            </div>
+
+            <!-- NHÓM 2: XÁO TRỘN, ĐÁP ÁN, NHẬP ĐỀ, TOÀN MÀN HÌNH -->
+            <div class="tool-group">
+                <button class="btn btn-amber" onclick="shuffleBothExams()" title="Xáo trộn độc lập câu hỏi và 4 đáp án cho cả 2 mã đề">
+                    🔀 Xáo trộn 2 mã đề
+                </button>
+                <button id="btnToggleAnswers" class="btn btn-slate" onclick="toggleShowAnswers()">
+                    👁️ Hiện đáp án
+                </button>
+                <button class="btn btn-indigo" onclick="openAnswerMatrixModal()">
+                    📋 Bảng đáp án
+                </button>
+                <button class="btn btn-slate" onclick="openImportModal()">
+                    ✏️ Nhập đề mới
+                </button>
+                <button class="btn btn-slate" onclick="toggleFullScreen()">
+                    ⛶ Toàn màn hình
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- KHU VỰC CHIA ĐÔI 2 MÀN HÌNH SONG SONG -->
+    <main class="split-main">
+        <!-- CỘT TRÁI: MÃ ĐỀ 101 -->
+        <section class="exam-column left-col">
+            <div class="col-header">
+                <div class="col-title-wrap">
+                    <span class="seat-badge">DÃY TRÁI</span>
+                    <span class="code-label">MÃ ĐỀ:</span>
+                    <input id="codeLeftInput" class="code-input" type="text" value="101" onchange="updateExamCodes()" title="Nhấp để đổi số mã đề">
+                </div>
+                <span class="col-hint">Tô đáp án vào phiếu 30 câu</span>
+            </div>
+            <div id="leftExamContainer" class="exam-scroll"></div>
+        </section>
+
+        <!-- CỘT PHẢI: MÃ ĐỀ 102 -->
+        <section class="exam-column right-col">
+            <div class="col-header">
+                <div class="col-title-wrap">
+                    <span class="seat-badge">DÃY PHẢI</span>
+                    <span class="code-label">MÃ ĐỀ:</span>
+                    <input id="codeRightInput" class="code-input" type="text" value="102" onchange="updateExamCodes()" title="Nhấp để đổi số mã đề">
+                </div>
+                <span class="col-hint">Tô đáp án vào phiếu 30 câu</span>
+            </div>
+            <div id="rightExamContainer" class="exam-scroll"></div>
+        </section>
+    </main>
+</div>
+
+<!-- THÔNG BÁO NHANH -->
+<div id="toastBox" class="toast-box no-print">Thông báo</div>
+
+<!-- MODAL 1: BẢNG MA TRẬN ĐÁP ÁN 30 CÂU -->
+<div id="answerModal" class="modal-overlay">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <div>
+                <div class="modal-title">BẢNG ĐÁP ÁN CHẤM BÀI TRẮC NGHIỆM (30 CÂU)</div>
+                <div class="modal-sub">TRƯỜNG THPT BÌNH TÂN &bull; Giáo viên: Nguyễn Hoàng Hải Đăng</div>
+            </div>
+            <div class="tool-group no-print">
+                <button class="btn btn-blue" onclick="copyAnswerMatrix()">📋 Sao chép</button>
+                <button class="btn btn-emerald" onclick="window.print()">🖨️ In đáp án</button>
+                <button class="btn btn-red" onclick="closeAnswerMatrixModal()">✕ Đóng</button>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div class="matrix-grid">
+                <div class="matrix-card left-m">
+                    <div class="matrix-card-title">MÃ ĐỀ <span id="matrixCodeLeft">101</span> (DÃY TRÁI)</div>
+                    <div id="matrixStatsLeft" class="matrix-stats-bar"></div>
+                    <div id="matrixTableLeft" class="matrix-sub-tables"></div>
+                </div>
+                <div class="matrix-card right-m">
+                    <div class="matrix-card-title">MÃ ĐỀ <span id="matrixCodeRight">102</span> (DÃY PHẢI)</div>
+                    <div id="matrixStatsRight" class="matrix-stats-bar"></div>
+                    <div id="matrixTableRight" class="matrix-sub-tables"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL 2: CHỈNH SỬA / NHẬP NGÂN HÀNG CÂU HỎI MỚI -->
+<div id="importModal" class="modal-overlay no-print">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <div>
+                <div class="modal-title">CHỈNH SỬA / NHẬP BỘ CÂU HỎI MỚI</div>
+                <div class="modal-sub">Hỗ trợ dán trực tiếp danh sách câu hỏi và tự động mã hóa an toàn các thẻ HTML/CSS</div>
+            </div>
+            <button class="btn btn-red" onclick="closeImportModal()">✕ Đóng</button>
+        </div>
+        <div class="modal-body">
+            <div class="guide-box">
+                <strong>Hướng dẫn định dạng nhập nhanh:</strong><br>
+                &bull; Mỗi câu bắt đầu bằng <code class="inline-code">Câu 1.</code> (hoặc <code class="inline-code">Câu 1:</code>). Nếu câu hỏi có đoạn mã nhiều dòng, đặt trong cặp <code class="inline-code">[code] ... [/code]</code>.<br>
+                &bull; 4 phương án đặt trên các dòng bắt đầu bằng <code class="inline-code">A.</code>, <code class="inline-code">B.</code>, <code class="inline-code">C.</code>, <code class="inline-code">D.</code> và thêm dấu sao <code class="inline-code">*</code> ngay trước đáp án đúng (ví dụ: <code class="inline-code">*B. &lt;form&gt; ... &lt;/form&gt;</code>).
+            </div>
+            <textarea id="questionInputArea" class="import-textarea" spellcheck="false"></textarea>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-slate" onclick="restoreDefaultQuestions()">↺ Khôi phục 30 câu Tin học 12 mặc định</button>
+            <div class="tool-group">
+                <button class="btn btn-slate" onclick="closeImportModal()">Hủy</button>
+                <button class="btn btn-blue" onclick="applyImportedQuestions()">✓ Áp dụng &amp; Xáo trộn 2 mã đề</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // =========================================================================
+    // 1. NGÂN HÀNG 30 CÂU HỎI TIN HỌC 12 (LƯU DƯỚI DẠNG CHUỖI JSON AN TOÀN)
+    // =========================================================================
+    var RAW_QUESTIONS_JSON = '[\
+        {"id":1,"text":"Trong HTML, cặp thẻ nào sau đây được dùng để khai báo một biểu mẫu web?","code":"","options":["\\u003cinput\\u003e ... \\u003c/input\\u003e","\\u003cform\\u003e ... \\u003c/form\\u003e","\\u003cfieldset\\u003e ... \\u003c/fieldset\\u003e","\\u003cselect\\u003e ... \\u003c/select\\u003e"],"correctIndex":1},\
+        {"id":2,"text":"Thành phần nào sau đây không thuộc phạm vi của ngôn ngữ HTML khi xây dựng một biểu mẫu web đầy đủ?","code":"","options":["Các thẻ tạo ô nhập liệu cho người dùng.","Các nút bấm gửi thông tin trên giao diện trang web.","Các ứng dụng hoặc script xử lí dữ liệu nằm trên máy chủ.","Các nhãn mô tả nội dung cần nhập cho từng ô dữ liệu."],"correctIndex":2},\
+        {"id":3,"text":"Thẻ nào trong các thẻ biểu mẫu sau đây là thẻ đơn (không có thẻ kết thúc)?","code":"","options":["\\u003ctextarea\\u003e","\\u003cselect\\u003e","\\u003clabel\\u003e","\\u003cinput\\u003e"],"correctIndex":3},\
+        {"id":4,"text":"Để tạo một ô nhập mật khẩu mà các kí tự gõ vào được che giấu trên màn hình, ta thiết lập thuộc tính `type` của thẻ `\\u003cinput\\u003e` nhận giá trị nào?","code":"","options":["type=\\"text\\"","type=\\"hidden\\"","type=\\"password\\"","type=\\"secret\\""],"correctIndex":2},\
+        {"id":5,"text":"Để nhóm các phần tử có liên quan trong biểu mẫu bằng một khung hình chữ nhật bao quanh, ta sử dụng cặp thẻ nào?","code":"","options":["\\u003clegend\\u003e ... \\u003c/legend\\u003e","\\u003cfieldset\\u003e ... \\u003c/fieldset\\u003e","\\u003coption\\u003e ... \\u003c/option\\u003e","\\u003cdivform\\u003e ... \\u003c/divform\\u003e"],"correctIndex":1},\
+        {"id":6,"text":"Trong HTML, phần tử `\\u003ctextarea\\u003e` được dùng để làm gì?","code":"","options":["Tạo danh sách các lựa chọn thả xuống.","Tạo nút chọn một tệp tin từ máy tính để tải lên.","Xác định một vùng nhập văn bản có nhiều dòng và nhiều cột.","Tạo tiêu đề cho một nhóm phần tử trong biểu mẫu."],"correctIndex":2},\
+        {"id":7,"text":"Cụm từ viết tắt CSS trong thiết kế web là gì?","code":"","options":["Computer Style Sheets","Cascading Style Sheets","Creative Style System","Cascading System Sheets"],"correctIndex":1},\
+        {"id":8,"text":"Cấu trúc tổng quát của một mẫu định dạng CSS bao gồm hai phần chính là gì?","code":"","options":["Tên thẻ và giá trị thuộc tính.","Thẻ mở và thẻ đóng.","Bộ chọn và vùng mô tả.","Phần đầu và phần thân."],"correctIndex":2},\
+        {"id":9,"text":"Trong một vùng mô tả của mẫu định dạng CSS, các quy định (cặp `thuộc tính: giá trị`) được ngăn cách với nhau bởi dấu gì?","code":"","options":["Dấu phẩy (,)","Dấu hai chấm (:)","Dấu chấm phẩy (;)","Dấu gạch chéo (/)"],"correctIndex":2},\
+        {"id":10,"text":"Khi thiết lập CSS trong (Internal CSS), toàn bộ các mẫu định dạng được đặt bên trong cặp thẻ nào của tệp HTML?","code":"","options":["\\u003ccss\\u003e ... \\u003c/css\\u003e","\\u003cscript\\u003e ... \\u003c/script\\u003e","\\u003clink\\u003e ... \\u003c/link\\u003e","\\u003cstyle\\u003e ... \\u003c/style\\u003e"],"correctIndex":3},\
+        {"id":11,"text":"Kí hiệu dùng để viết chú thích (comment) trong một tệp định dạng `.css` ngoài là gì?","code":"","options":["// nội dung chú thích","\\u003c!-- nội dung chú thích --\\u003e","/* nội dung chú thích */","# nội dung chú thích"],"correctIndex":2},\
+        {"id":12,"text":"Phát biểu nào sau đây là đúng khi nói về mối quan hệ giữa ngôn ngữ CSS và ngôn ngữ HTML?","code":"","options":["CSS là một tập hợp các thẻ mở rộng của ngôn ngữ HTML.","CSS sử dụng ngôn ngữ mô tả riêng, độc lập với ngôn ngữ HTML.","Tệp CSS bắt buộc phải lưu chung trong cùng một tệp với mã nguồn HTML.","Mọi trang web HTML đều không thể hiển thị nếu thiếu tệp CSS."],"correctIndex":1},\
+        {"id":13,"text":"Điểm khác biệt cơ bản nhất về chức năng lựa chọn giữa `type=\\"radio\\"` và `type=\\"checkbox\\"` trong thẻ `\\u003cinput\\u003e` là gì?","code":"","options":["radio cho phép chọn nhiều giá trị cùng lúc, còn checkbox chỉ cho phép chọn duy nhất một giá trị.","radio chỉ cho phép chọn một giá trị duy nhất trong nhóm cùng tên, còn checkbox cho phép chọn nhiều giá trị độc lập.","radio bắt buộc phải có thuộc tính value, còn checkbox không cần thuộc tính value.","radio hiển thị dạng hộp vuông, còn checkbox hiển thị dạng nút tròn."],"correctIndex":1},\
+        {"id":14,"text":"Khi thiết kế biểu mẫu, việc liên kết thẻ `\\u003clabel\\u003e` với thẻ `\\u003cinput\\u003e` thông qua cặp thuộc tính `for` và `id` mang lại tác dụng trực tiếp nào sau đây?","code":"","options":["Tự động kiểm tra tính hợp lệ của dữ liệu người dùng nhập vào ô.","Khi nháy chuột vào nội dung nhãn, con trỏ chuột sẽ tự động được đưa vào vùng nhập của ô \\u003cinput\\u003e tương ứng.","Tự động xuống dòng giữa nhãn và ô nhập liệu mà không cần dùng thẻ \\u003cbr\\u003e.","Gửi kèm tên nhãn về máy chủ khi người dùng nhấn nút submit."],"correctIndex":1},\
+        {"id":15,"text":"Trong biểu mẫu HTML, sự khác nhau giữa nút tạo bởi `\\u003cinput type=\\"button\\"\\u003e` và `\\u003cinput type=\\"submit\\"\\u003e` là gì?","code":"","options":["button không thể hiển thị chữ trên nút, còn submit hiển thị chữ thông qua thuộc tính value.","submit dùng để gửi dữ liệu biểu mẫu tới địa chỉ chỉ định tại thuộc tính action của \\u003cform\\u003e, còn button chỉ tạo nút bấm thông thường.","submit dùng để xóa toàn bộ dữ liệu vừa nhập trên biểu mẫu, còn button dùng để lưu dữ liệu.","button phải đặt bên ngoài thẻ \\u003cform\\u003e, còn submit phải đặt bên trong thẻ \\u003cform\\u003e."],"correctIndex":1},\
+        {"id":16,"text":"Tại sao trong phần tử `\\u003ctextarea id=\\"ghichu\\" name=\\"ghichu\\" rows=\\"4\\" cols=\\"30\\"\\u003e\\u003c/textarea\\u003e`, nếu không muốn vùng nhập bị có sẵn khoảng trắng thừa thì không nên gõ dấu cách hay xuống dòng giữa thẻ mở và thẻ đóng?","code":"","options":["Vì trình duyệt sẽ báo lỗi cú pháp HTML và không hiển thị ô nhập.","Vì mọi nội dung (kể cả dấu cách, xuống dòng) nằm giữa cặp thẻ mở và đóng của \\u003ctextarea\\u003e đều được hiển thị làm nội dung mặc định trong vùng nhập.","Vì thuộc tính rows và cols sẽ bị vô hiệu hóa nếu có kí tự bên trong thẻ.","Vì máy chủ sẽ từ chối nhận dữ liệu nếu ô nhập có sẵn kí tự trống."],"correctIndex":1},\
+        {"id":17,"text":"Khi muốn áp dụng cùng một mẫu định dạng CSS cho đồng thời nhiều loại phần tử HTML khác nhau (ví dụ cả `h1`, `h2` và `p`), cách viết bộ chọn nào sau đây là đúng cú pháp?","code":"","options":["h1; h2; p {color: blue;}","h1 + h2 + p {color: blue;}","h1, h2, p {color: blue;}","h1 h2 p {color: blue;}"],"correctIndex":2},\
+        {"id":18,"text":"Phạm vi áp dụng của CSS trong (Internal CSS) và CSS ngoài (External CSS) khác nhau như thế nào?","code":"","options":["CSS trong áp dụng cho toàn bộ website, còn CSS ngoài chỉ áp dụng cho một thẻ HTML duy nhất.","CSS trong chỉ áp dụng cho tệp HTML hiện tại chứa nó, còn một tệp CSS ngoài có thể kết nối để áp dụng đồng thời cho nhiều trang web khác nhau.","CSS trong được viết trong phần \\u003cbody\\u003e, còn CSS ngoài được viết trong phần \\u003chead\\u003e.","CSS trong có thể dùng lại ở nhiều trang khác bằng thẻ \\u003clink\\u003e, còn CSS ngoài thì không."],"correctIndex":1},\
+        {"id":19,"text":"Trong vùng `\\u003chead\\u003e` của tệp `index.html`, câu lệnh nào sau đây kết nối đúng với tệp định dạng ngoài có tên `giaodien.css` đặt cùng thư mục?","code":"","options":["\\u003clink src=\\"giaodien.css\\" rel=\\"stylesheet\\" type=\\"text/css\\"\\u003e","\\u003clink href=\\"giaodien.css\\" rel=\\"stylesheet\\" type=\\"text/css\\"\\u003e","\\u003cstyle href=\\"giaodien.css\\" rel=\\"stylesheet\\"\\u003e","\\u003ca href=\\"giaodien.css\\" rel=\\"stylesheet\\" type=\\"text/css\\"\\u003e"],"correctIndex":1},\
+        {"id":20,"text":"Vai trò quan trọng nhất của CSS trong quy trình phát triển một website lớn gồm hàng trăm trang web là gì?","code":"","options":["Thay thế hoàn toàn ngôn ngữ HTML để tạo cấu trúc nội dung cho trang web.","Giúp trang web có thể xử lí dữ liệu biểu mẫu trực tiếp mà không cần máy chủ.","Tách biệt nội dung và hình thức, cho phép định dạng thống nhất và chỉ cần chỉnh sửa ở một tệp CSS duy nhất khi muốn thay đổi giao diện toàn bộ website.","Giúp trình duyệt tải hình ảnh và video nhanh hơn trên đường truyền mạng chậm."],"correctIndex":2},\
+        {"id":21,"text":"Khi sử dụng lệnh `@import` để kết nối tệp CSS ngoài vào trang HTML, lệnh này phải được đặt ở đâu?","code":"","options":["Đặt trực tiếp bên trong thẻ \\u003cbody\\u003e.","Đặt bên trong cặp thẻ \\u003cstyle\\u003e ... \\u003c/style\\u003e nằm trong phần \\u003chead\\u003e.","Đặt bên trong thuộc tính style của thẻ \\u003chtml\\u003e.","Đặt ngay trên dòng khai báo \\u003c!DOCTYPE html\\u003e."],"correctIndex":1},\
+        {"id":22,"text":"Nhận định nào sau đây là SAI về cách thiết lập CSS nội tuyến (Inline CSS)?","code":"","options":["Định dạng được viết trực tiếp bên trong thẻ mở của phần tử HTML thông qua thuộc tính style.","Thực hiện nhanh cho một phần tử đơn lẻ nhưng mất nhiều thời gian nếu phải định dạng cho cả trang web lớn.","Khi sử dụng CSS nội tuyến, ta vẫn cần phải viết tên bộ chọn (ví dụ p { ... }) bên trong giá trị của thuộc tính style.","Các cặp thuộc tính: giá trị trong thuộc tính style vẫn được ngăn cách nhau bởi dấu chấm phẩy (;)."],"correctIndex":2},\
+        {"id":23,"text":"Một học sinh viết đoạn mã HTML để tạo mục chọn giới tính như code bên dưới. Khi chạy trên trình duyệt, người dùng có thể tích chọn đồng thời cả hai ô \\"Nam\\" và \\"Nữ\\". Nguyên nhân của lỗi này là gì?","code":"\\u003cinput type=\\"radio\\" id=\\"nam\\" value=\\"Nam\\"\\u003e \\u003clabel for=\\"nam\\"\\u003eNam\\u003c/label\\u003e\\n\\u003cinput type=\\"radio\\" id=\\"nu\\" value=\\"Nữ\\"\\u003e \\u003clabel for=\\"nu\\"\\u003eNữ\\u003c/label\\u003e","options":["Do hai thẻ \\u003cinput\\u003e có giá trị thuộc tính id khác nhau (nam và nu).","Do hai thẻ \\u003cinput\\u003e thiếu thuộc tính name có cùng một giá trị để gom thành một nhóm lựa chọn duy nhất.","Do thẻ \\u003cinput type=\\"radio\\"\\u003e không được đặt bên trong cặp thẻ \\u003cselect\\u003e.","Do giá trị thuộc tính value chứa kí tự tiếng Việt có dấu (\\"Nữ\\")."],"correctIndex":1},\
+        {"id":24,"text":"Xét đoạn mã HTML tạo danh sách chọn tổ hợp môn thi. Phát biểu nào sau đây mô tả chính xác hoạt động của đoạn mã trên?","code":"\\u003clabel for=\\"tohop\\"\\u003eChọn tổ hợp:\\u003c/label\\u003e\\n\\u003cselect id=\\"khoi\\" name=\\"tohop\\"\\u003e\\n    \\u003coption value=\\"KHTN\\"\\u003eKhoa học tự nhiên\\u003c/option\\u003e\\n    \\u003coption value=\\"KHXH\\"\\u003eKhoa học xã hội\\u003c/option\\u003e\\n\\u003c/select\\u003e","options":["Khi nháy chuột vào chữ \\"Chọn tổ hợp:\\", danh sách thả xuống tự động được kích hoạt vì for trùng với name.","Khi nháy chuột vào chữ \\"Chọn tổ hợp:\\", con trỏ không nhảy vào danh sách chọn vì thuộc tính for=\\"tohop\\" không khớp với id=\\"khoi\\".","Khi người dùng chọn \\"Khoa học tự nhiên\\" và gửi biểu mẫu, giá trị gửi về máy chủ là chuỗi \\"Khoa học tự nhiên\\".","Đoạn mã bị lỗi không hiển thị được vì thẻ \\u003coption\\u003e bắt buộc phải có thẻ đóng \\u003c/option\\u003e và thuộc tính name."],"correctIndex":1},\
+        {"id":25,"text":"Cho đoạn mã HTML tạo một phần của biểu mẫu đăng kí. Nhận xét nào sau đây đúng nhất về đoạn mã trên?","code":"\\u003cform\\u003e\\n    \\u003cfieldset\\u003e\\n        \\u003clegend\\u003eThông tin tài khoản\\u003c/legend\\u003e\\n        \\u003clabel\\u003eTên đăng nhập:\\u003c/label\\u003e\\n        \\u003cinput type=\\"text\\" name=\\"user\\"\\u003e\\u003cbr\\u003e\\n        \\u003clabel\\u003eMật khẩu:\\u003c/label\\u003e\\n        \\u003cinput type=\\"password\\" name=\\"pass\\"\\u003e\\u003cbr\\u003e\\n        \\u003cinput type=\\"button\\" value=\\"Đăng kí\\"\\u003e\\n    \\u003c/fieldset\\u003e\\n\\u003c/form\\u003e","options":["Biểu mẫu hoạt động hoàn hảo, khi nhập xong và bấm nút \\"Đăng kí\\" thì dữ liệu sẽ được gửi ngay về máy chủ.","Chữ \\"Thông tin tài khoản\\" sẽ nằm đè lên đường viền phía trên của khung chữ nhật bao quanh 3 phần tử nhập liệu và nút bấm.","Khi bấm chuột vào chữ \\"Mật khẩu:\\", con trỏ chuột tự động nhảy vào ô nhập mật khẩu bên cạnh.","Nút \\"Đăng kí\\" không hiển thị chữ trên nút vì thẻ \\u003cinput\\u003e là thẻ đơn nên không có nội dung bên trong."],"correctIndex":1},\
+        {"id":26,"text":"Một trang web có cấu trúc thư mục: thư mục gốc `website/` chứa tệp `index.html` và hai thư mục con `css/` (chứa tệp `main.css`), `pages/` (chứa tệp `gioithieu.html`). Trong tệp `gioithieu.html`, để kết nối với tệp `main.css` bằng CSS ngoài, câu lệnh nào đặt trong `\\u003chead\\u003e` là đúng?","code":"website/\\n ├── index.html\\n ├── css/main.css\\n └── pages/gioithieu.html","options":["\\u003clink href=\\"css/main.css\\" rel=\\"stylesheet\\" type=\\"text/css\\"\\u003e","\\u003clink href=\\"../css/main.css\\" rel=\\"stylesheet\\" type=\\"text/css\\"\\u003e","\\u003clink href=\\"website/css/main.css\\" rel=\\"stylesheet\\" type=\\"text/css\\"\\u003e","\\u003clink href=\\"../../css/main.css\\" rel=\\"stylesheet\\" type=\\"text/css\\"\\u003e"],"correctIndex":1},\
+        {"id":27,"text":"Cho đoạn mã CSS trong tệp `style.css`. Khi liên kết tệp `style.css` này vào một trang HTML có chứa cả ba thẻ `\\u003ch1\\u003e`, `\\u003ch2\\u003e` và `\\u003cp\\u003e`, kết quả hiển thị trên trình duyệt sẽ như thế nào?","code":"/* Định dạng tiêu đề\\nh1 {color: red; border: 2px solid blue;}\\np {text-indent: 15px;}\\n*/\\nh2 {color: green;}","options":["Thẻ \\u003ch1\\u003e có chữ đỏ viền xanh, thẻ \\u003cp\\u003e thụt đầu dòng 15px, thẻ \\u003ch2\\u003e có chữ màu xanh lá.","Chỉ có thẻ \\u003ch2\\u003e có chữ màu xanh lá, còn thẻ \\u003ch1\\u003e và \\u003cp\\u003e hiển thị theo định dạng mặc định của trình duyệt.","Trình duyệt báo lỗi cú pháp CSS và không áp dụng bất kì định dạng nào trong tệp style.css.","Thẻ \\u003ch1\\u003e và \\u003cp\\u003e được định dạng, còn thẻ \\u003ch2\\u003e không được định dạng."],"correctIndex":1},\
+        {"id":28,"text":"Xét đoạn mã HTML sau. Kết quả màu chữ của Tiêu đề 1, Đoạn văn bản 1 và Đoạn văn bản 2 hiển thị trên trình duyệt lần lượt là gì?","code":"\\u003chead\\u003e\\n    \\u003cstyle\\u003e h1, p {color: blue;} \\u003c/style\\u003e\\n\\u003c/head\\u003e\\n\\u003cbody\\u003e\\n    \\u003ch1\\u003eTiêu đề 1\\u003c/h1\\u003e\\n    \\u003cp style=\\"color: red\\"\\u003eĐoạn văn bản 1\\u003c/p\\u003e\\n    \\u003cp\\u003eĐoạn văn bản 2\\u003c/p\\u003e\\n\\u003c/body\\u003e","options":["Xanh dương – Xanh dương – Xanh dương.","Xanh dương – Đỏ – Xanh dương.","Đen – Đỏ – Xanh dương.","Xanh dương – Đỏ – Đen."],"correctIndex":1},\
+        {"id":29,"text":"Trong vùng `\\u003chead\\u003e` của trang web, một học sinh viết `@import \\"dinhdang.css\\"; p {color: red;}`. Giả sử tệp `dinhdang.css` chỉ có duy nhất một dòng lệnh `p {color: blue;}`. Khi mở trang web trên trình duyệt, đoạn văn bản trong thẻ `\\u003cp\\u003e` sẽ có màu gì và vì sao?","code":"\\u003cstyle\\u003e\\n    @import \\"dinhdang.css\\";\\n    p {color: red;}\\n\\u003c/style\\u003e","options":["Màu xanh dương, vì CSS ngoài luôn có mức độ ưu tiên cao hơn CSS trong.","Màu đỏ, vì lệnh @import được nạp trước nên quy định p {color: red;} nằm ở vị trí viết sau cùng sẽ được áp dụng.","Màu đen mặc định, vì không thể vừa dùng @import vừa viết trực tiếp mã CSS trong cùng một cặp thẻ \\u003cstyle\\u003e.","Trình duyệt chỉ áp dụng định dạng trong tệp dinhdang.css và bỏ qua mọi dòng lệnh bên dưới @import."],"correctIndex":1},\
+        {"id":30,"text":"Để tạo một biểu mẫu đăng kí câu lạc bộ gồm: ô nhập Họ tên, ô chọn Ngày sinh, ô chọn Khối lớp (10, 11, 12 dạng danh sách thả xuống) và nút gửi dữ liệu. Một học sinh đề xuất dùng: (1) `\\u003cinput type=\\"text\\"\\u003e` cho Họ tên; (2) `\\u003cinput type=\\"date\\"\\u003e` cho Ngày sinh; (3) `\\u003cselect\\u003e` kết hợp `\\u003coption\\u003e` cho Khối lớp; (4) `\\u003cinput type=\\"button\\" value=\\"Gửi đăng kí\\"\\u003e` để gửi dữ liệu form về máy chủ. Số lượng đề xuất đúng và phù hợp nhất là bao nhiêu?","code":"","options":["1","2","3","4"],"correctIndex":2}\
+    ]';
+    var DEFAULT_QUESTIONS = JSON.parse(RAW_QUESTIONS_JSON);
+
+    // =========================================================================
+    // 2. BIẾN TRẠNG THÁI TOÀN CỤC
+    // =========================================================================
+    var baseQuestions = JSON.parse(RAW_QUESTIONS_JSON);
+    var examLeft = [];
+    var examRight = [];
+    var currentPage = 0;
+    var perPage = 3;
+    var fontSize = 19;
+    var showAnswers = false;
+
+    // Đồng hồ đếm ngược
+    var totalSeconds = 15 * 60;
+    var remainingSeconds = 15 * 60;
+    var timerInterval = null;
+    var isTimerRunning = false;
+
+    // =========================================================================
+    // 3. HÀM XỬ LÝ AN TOÀN CHUỖI & XÁO TRỘN CÂN BẰNG ĐÁP ÁN A, B, C, D
+    // =========================================================================
+    function escapeHTML(str) {
+        if (!str) return "";
+        return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+    }
+
+    function formatQuestionText(rawText) {
+        var escaped = escapeHTML(rawText);
+        return escaped.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
+    }
+
+    function shuffleArray(arr) {
+        var copy = arr.slice();
+        for (var i = copy.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var tmp = copy[i];
+            copy[i] = copy[j];
+            copy[j] = tmp;
+        }
+        return copy;
+    }
+
+    // Tạo mảng N vị trí đáp án mục tiêu [0..3] phân bổ đều và hạn chế lặp quá 3 câu liên tiếp
+    function createBalancedTargetIndices(totalCount) {
+        var baseSet = [0, 1, 2, 3];
+        var fullRepeats = Math.floor(totalCount / 4);
+        var remainder = totalCount % 4;
+        var targets = [];
+
+        for (var r = 0; r < fullRepeats; r++) {
+            targets.push(0, 1, 2, 3);
+        }
+
+        if (remainder > 0) {
+            var extraChoices = shuffleArray(baseSet).slice(0, remainder);
+            for (var e = 0; e < extraChoices.length; e++) {
+                targets.push(extraChoices[e]);
+            }
+        }
+
+        // Thử xáo trộn tối đa 50 lần để không có quá 3 đáp án giống nhau liên tiếp
+        var bestTargets = shuffleArray(targets);
+        for (var attempt = 0; attempt < 50; attempt++) {
+            var candidate = shuffleArray(targets);
+            var maxStreak = 1;
+            var currentStreak = 1;
+            for (var k = 1; k < candidate.length; k++) {
+                if (candidate[k] === candidate[k - 1]) {
+                    currentStreak++;
+                    if (currentStreak > maxStreak) maxStreak = currentStreak;
+                } else {
+                    currentStreak = 1;
+                }
+            }
+            bestTargets = candidate;
+            if (maxStreak <= 3) {
+                break;
+            }
+        }
+        return bestTargets;
+    }
+
+    // Tạo một mã đề với thứ tự câu hỏi ngẫu nhiên VÀ đáp án A, B, C, D phân bổ đồng đều
+    function generateBalancedExam(rawList) {
+        var shuffledQuestions = shuffleArray(rawList);
+        var targetCorrectIndices = createBalancedTargetIndices(shuffledQuestions.length);
+
+        return shuffledQuestions.map(function (q, qIdx) {
+            var targetIdx = targetCorrectIndices[qIdx];
+            var correctText = q.options[q.correctIndex];
+            var distractors = [];
+
+            for (var i = 0; i < q.options.length; i++) {
+                if (i !== q.correctIndex) {
+                    distractors.push(q.options[i]);
+                }
+            }
+
+            var shuffledDistractors = shuffleArray(distractors);
+            var finalOptions = new Array(q.options.length);
+            var dPtr = 0;
+
+            for (var pos = 0; pos < q.options.length; pos++) {
+                if (pos === targetIdx) {
+                    finalOptions[pos] = correctText;
+                } else {
+                    finalOptions[pos] = shuffledDistractors[dPtr++];
+                }
+            }
+
+            return {
+                origId: q.id,
+                text: q.text,
+                code: q.code || "",
+                options: finalOptions,
+                correctIndex: targetIdx
+            };
+        });
+    }
+
+    function countOptionDistribution(examList) {
+        var counts = [0, 0, 0, 0];
+        for (var i = 0; i < examList.length; i++) {
+            var idx = examList[i].correctIndex;
+            if (idx >= 0 && idx < 4) {
+                counts[idx]++;
+            }
+        }
+        return counts;
+    }
+
+    function shuffleBothExams() {
+        examLeft = generateBalancedExam(baseQuestions);
+        examRight = generateBalancedExam(baseQuestions);
+
+        // Đảm bảo mã đề phải khác thứ tự câu đầu tiên với mã đề trái
+        if (examLeft.length > 1 && examRight[0].origId === examLeft[0].origId) {
+            var temp = examRight[0];
+            examRight[0] = examRight[examRight.length - 1];
+            examRight[examRight.length - 1] = temp;
+        }
+
+        currentPage = 0;
+        renderAll();
+
+        var cL = countOptionDistribution(examLeft);
+        var cR = countOptionDistribution(examRight);
+        showToast("Đã xáo trộn cân bằng! Mã trái: A(" + cL[0] + ") B(" + cL[1] + ") C(" + cL[2] + ") D(" + cL[3] + ") | Mã phải: A(" + cR[0] + ") B(" + cR[1] + ") C(" + cR[2] + ") D(" + cR[3] + ")");
+    }
+
+    // =========================================================================
+    // 4. HIỂN THỊ CÂU HỎI LÊN 2 MÀN HÌNH SONG SONG
+    // =========================================================================
+    function buildColumnHTML(examList, startIndex, endIndex) {
+        var letters = ["A", "B", "C", "D"];
+        var html = "";
+
+        for (var i = startIndex; i < endIndex; i++) {
+            var q = examList[i];
+            var qNum = i + 1;
+
+            var maxLen = 0;
+            for (var k = 0; k < q.options.length; k++) {
+                if (q.options[k].length > maxLen) maxLen = q.options[k].length;
+            }
+            var gridClass = maxLen <= 34 ? "options-grid two-cols" : "options-grid";
+
+            html += '<article class="q-card" style="font-size:' + fontSize + 'px;">';
+            html += '  <div class="q-header">';
+            html += '    <span class="q-num-badge">Câu ' + qNum + '</span>';
+            html += '    <div class="q-text">' + formatQuestionText(q.text) + '</div>';
+            html += '  </div>';
+
+            if (q.code && q.code.trim() !== "") {
+                html += '  <pre class="code-snippet">' + escapeHTML(q.code) + '</pre>';
+            }
+
+            html += '  <div class="' + gridClass + '">';
+            for (var optIdx = 0; optIdx < q.options.length; optIdx++) {
+                var isCorrect = (optIdx === q.correctIndex);
+                var extraClass = (showAnswers && isCorrect) ? " is-correct-shown" : "";
+                html += '    <div class="opt-item' + extraClass + '">';
+                html += '      <span class="opt-letter">' + letters[optIdx] + '</span>';
+                html += '      <div class="opt-text">' + escapeHTML(q.options[optIdx]) + '</div>';
+                html += '    </div>';
+            }
+            html += '  </div>';
+            html += '</article>';
+        }
+        return html;
+    }
+
+    function renderAll() {
+        var total = examLeft.length;
+        if (total === 0) return;
+
+        var totalPages = Math.ceil(total / perPage);
+        if (currentPage >= totalPages) currentPage = totalPages - 1;
+        if (currentPage < 0) currentPage = 0;
+
+        var start = currentPage * perPage;
+        var end = Math.min(start + perPage, total);
+
+        var leftBox = document.getElementById("leftExamContainer");
+        var rightBox = document.getElementById("rightExamContainer");
+
+        leftBox.innerHTML = buildColumnHTML(examLeft, start, end);
+        rightBox.innerHTML = buildColumnHTML(examRight, start, end);
+
+        leftBox.scrollTop = 0;
+        rightBox.scrollTop = 0;
+
+        var pageInd = document.getElementById("pageIndicator");
+        if (perPage >= total) {
+            pageInd.textContent = "Tất cả " + total + " câu";
+        } else {
+            pageInd.textContent = "Câu " + (start + 1) + " - " + end + " / " + total;
+        }
+
+        document.getElementById("btnPrev").disabled = (currentPage === 0);
+        document.getElementById("btnNext").disabled = (currentPage >= totalPages - 1);
+        document.getElementById("fontSizeLabel").textContent = fontSize + "px";
+
+        renderAnswerMatrix();
+    }
+
+    // =========================================================================
+    // 5. ĐIỀU KHIỂN PHÂN TRANG, CỠ CHỮ & CHẾ ĐỘ HIỂN THỊ
+    // =========================================================================
+    function prevPage() {
+        if (currentPage > 0) {
+            currentPage--;
+            renderAll();
+        }
+    }
+
+    function nextPage() {
+        var totalPages = Math.ceil(examLeft.length / perPage);
+        if (currentPage < totalPages - 1) {
+            currentPage++;
+            renderAll();
+        }
+    }
+
+    function changePerPage(val) {
+        perPage = parseInt(val, 10) || 3;
+        currentPage = 0;
+        renderAll();
+    }
+
+    function adjustFontSize(delta) {
+        var next = fontSize + delta;
+        if (next >= 14 && next <= 32) {
+            fontSize = next;
+            renderAll();
+        }
+    }
+
+    function toggleShowAnswers() {
+        showAnswers = !showAnswers;
+        var btn = document.getElementById("btnToggleAnswers");
+        if (showAnswers) {
+            btn.className = "btn btn-red";
+            btn.textContent = "🙈 Ẩn đáp án";
+            showToast("Đang tô sáng đáp án đúng trực tiếp trên màn chiếu.");
+        } else {
+            btn.className = "btn btn-slate";
+            btn.textContent = "👁️ Hiện đáp án";
+            showToast("Đã ẩn đáp án trên màn chiếu.");
+        }
+        renderAll();
+    }
+
+    function updateExamCodes() {
+        var cL = document.getElementById("codeLeftInput").value.trim() || "101";
+        var cR = document.getElementById("codeRightInput").value.trim() || "102";
+        document.getElementById("matrixCodeLeft").textContent = cL;
+        document.getElementById("matrixCodeRight").textContent = cR;
+    }
+
+    function toggleFullScreen() {
+        if (!document.fullscreenElement) {
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(function () {
+                    showToast("Trình duyệt chặn tự động mở toàn màn hình, hãy nhấn phím F11.");
+                });
+            }
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    }
+
+    document.addEventListener("keydown", function (e) {
+        var tag = e.target.tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+        if (e.key === "ArrowRight" || e.key === "PageDown") {
+            nextPage();
+        } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+            prevPage();
+        }
+    });
+
+    // =========================================================================
+    // 6. BẢNG MA TRẬN ĐÁP ÁN CHẤM BÀI (2 CỘT 1-15 & 16-30 + THỐNG KÊ A,B,C,D)
+    // =========================================================================
+    function buildStatsBarHTML(examList) {
+        var counts = countOptionDistribution(examList);
+        return '<span class="stat-chip">A: <b>' + counts[0] + '</b></span>' +
+               '<span class="stat-chip">B: <b>' + counts[1] + '</b></span>' +
+               '<span class="stat-chip">C: <b>' + counts[2] + '</b></span>' +
+               '<span class="stat-chip">D: <b>' + counts[3] + '</b></span>';
+    }
+
+    function buildHalfTableHTML(examList, startIdx, endIdx) {
+        var letters = ["A", "B", "C", "D"];
+        var html = '<table class="ans-table"><thead><tr><th>Câu</th><th>Đáp án</th><th>Gốc</th></tr></thead><tbody>';
+        for (var i = startIdx; i < endIdx; i++) {
+            var q = examList[i];
+            html += '<tr>';
+            html += '  <td><strong>' + (i + 1) + '</strong></td>';
+            html += '  <td class="ans-letter">' + letters[q.correctIndex] + '</td>';
+            html += '  <td class="ans-orig">C.' + q.origId + '</td>';
+            html += '</tr>';
+        }
+        html += '</tbody></table>';
+        return html;
+    }
+
+    function renderAnswerMatrix() {
+        updateExamCodes();
+        var total = examLeft.length;
+        var mid = Math.ceil(total / 2);
+
+        document.getElementById("matrixStatsLeft").innerHTML = buildStatsBarHTML(examLeft);
+        document.getElementById("matrixStatsRight").innerHTML = buildStatsBarHTML(examRight);
+
+        document.getElementById("matrixTableLeft").innerHTML =
+            buildHalfTableHTML(examLeft, 0, mid) + buildHalfTableHTML(examLeft, mid, total);
+
+        document.getElementById("matrixTableRight").innerHTML =
+            buildHalfTableHTML(examRight, 0, mid) + buildHalfTableHTML(examRight, mid, total);
+    }
+
+    function openAnswerMatrixModal() {
+        renderAnswerMatrix();
+        document.getElementById("answerModal").classList.add("open");
+    }
+
+    function closeAnswerMatrixModal() {
+        document.getElementById("answerModal").classList.remove("open");
+    }
+
+    function copyAnswerMatrix() {
+        var letters = ["A", "B", "C", "D"];
+        var cL = document.getElementById("codeLeftInput").value.trim() || "101";
+        var cR = document.getElementById("codeRightInput").value.trim() || "102";
+        var lines = ["BẢNG ĐÁP ÁN KIỂM TRA THƯỜNG XUYÊN 2 - TRƯỜNG THPT BÌNH TÂN\n"];
+
+        lines.push("=== MÃ ĐỀ " + cL + " ===");
+        for (var i = 0; i < examLeft.length; i++) {
+            lines.push("Câu " + (i + 1) + ": " + letters[examLeft[i].correctIndex] + " (Gốc câu " + examLeft[i].origId + ")");
+        }
+
+        lines.push("\n=== MÃ ĐỀ " + cR + " ===");
+        for (var j = 0; j < examRight.length; j++) {
+            lines.push("Câu " + (j + 1) + ": " + letters[examRight[j].correctIndex] + " (Gốc câu " + examRight[j].origId + ")");
+        }
+
+        var ta = document.createElement("textarea");
+        ta.value = lines.join("\n");
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+            document.execCommand("copy");
+            showToast("Đã sao chép toàn bộ đáp án 2 mã đề vào bộ nhớ tạm!");
+        } catch (err) {
+            showToast("Không thể sao chép tự động, vui lòng bôi đen để sao chép.");
+        }
+        document.body.removeChild(ta);
+    }
+
+    // =========================================================================
+    // 7. NHẬP / CHỈNH SỬA NGÂN HÀNG CÂU HỎI MỚI
+    // =========================================================================
+    function serializeQuestionsToText(qList) {
+        var letters = ["A", "B", "C", "D"];
+        return qList.map(function (q, idx) {
+            var block = "Câu " + (idx + 1) + ". " + q.text + "\n";
+            if (q.code && q.code.trim() !== "") {
+                block += "[code]\n" + q.code.trim() + "\n[/code]\n";
+            }
+            for (var i = 0; i < q.options.length; i++) {
+                var prefix = (i === q.correctIndex) ? "*" : "";
+                block += prefix + letters[i] + ". " + q.options[i] + "\n";
+            }
+            return block.trim();
+        }).join("\n\n");
+    }
+
+    function openImportModal() {
+        document.getElementById("questionInputArea").value = serializeQuestionsToText(baseQuestions);
+        document.getElementById("importModal").classList.add("open");
+    }
+
+    function closeImportModal() {
+        document.getElementById("importModal").classList.remove("open");
+    }
+
+    function parseImportedText(raw) {
+        var lines = raw.split(/\r?\n/);
+        var result = [];
+        var curr = null;
+        var inCode = false;
+
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i];
+            var trimmed = line.trim();
+
+            if (trimmed === "[code]") {
+                inCode = true;
+                continue;
+            }
+            if (trimmed === "[/code]") {
+                inCode = false;
+                continue;
+            }
+            if (inCode && curr) {
+                curr.code += (curr.code ? "\n" : "") + line;
+                continue;
+            }
+            if (trimmed === "") continue;
+
+            var qMatch = trimmed.match(/^(?:Câu|Question)\s*\d+\s*[\.:\)]\s*(.+)$/i);
+            if (qMatch) {
+                if (curr && curr.options.length >= 2) {
+                    result.push(curr);
+                }
+                curr = {
+                    id: result.length + 1,
+                    text: qMatch[1].trim(),
+                    code: "",
+                    options: [],
+                    correctIndex: 0
+                };
+                continue;
+            }
+
+            var optMatch = trimmed.match(/^(\*?)\s*([A-Da-d])\s*[\.:\)]\s*(.+)$/);
+            if (optMatch && curr) {
+                if (optMatch[1] === "*") {
+                    curr.correctIndex = curr.options.length;
+                }
+                curr.options.push(optMatch[3].trim());
+                continue;
+            }
+
+            if (curr && curr.options.length === 0) {
+                curr.text += " " + trimmed;
+            }
+        }
+
+        if (curr && curr.options.length >= 2) {
+            result.push(curr);
+        }
+        return result;
+    }
+
+    function applyImportedQuestions() {
+        var raw = document.getElementById("questionInputArea").value;
+        var parsed = parseImportedText(raw);
+        if (parsed.length === 0) {
+            showToast("Lỗi định dạng: Không nhận diện được câu hỏi nào!");
+            return;
+        }
+        baseQuestions = parsed;
+        closeImportModal();
+        shuffleBothExams();
+        showToast("Đã cập nhật " + parsed.length + " câu hỏi và chia đều đáp án A, B, C, D!");
+    }
+
+    function restoreDefaultQuestions() {
+        baseQuestions = JSON.parse(RAW_QUESTIONS_JSON);
+        document.getElementById("questionInputArea").value = serializeQuestionsToText(baseQuestions);
+        showToast("Đã khôi phục 30 câu hỏi Tin học 12 gốc.");
+    }
+
+    // =========================================================================
+    // 8. ĐỒNG HỒ ĐẾM NGƯỢC THỜI GIAN LÀM BÀI
+    // =========================================================================
+    function updateTimerDisplay() {
+        var m = Math.floor(remainingSeconds / 60);
+        var s = remainingSeconds % 60;
+        var str = (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+        var el = document.getElementById("timerDisplay");
+        el.textContent = str;
+
+        el.className = "timer-display";
+        if (remainingSeconds <= 60 && remainingSeconds > 0) {
+            el.className = "timer-display timer-critical";
+        } else if (remainingSeconds <= 180 && remainingSeconds > 60) {
+            el.className = "timer-display timer-warning";
+        }
+    }
+
+    function toggleTimer() {
+        var btn = document.getElementById("btnTimerToggle");
+        if (isTimerRunning) {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            btn.className = "btn btn-emerald";
+            btn.textContent = "▶ Tiếp tục";
+        } else {
+            if (remainingSeconds <= 0) remainingSeconds = totalSeconds;
+            isTimerRunning = true;
+            btn.className = "btn btn-amber";
+            btn.textContent = "⏸ Tạm dừng";
+
+            timerInterval = setInterval(function () {
+                if (remainingSeconds > 0) {
+                    remainingSeconds--;
+                    updateTimerDisplay();
+                } else {
+                    clearInterval(timerInterval);
+                    isTimerRunning = false;
+                    btn.className = "btn btn-emerald";
+                    btn.textContent = "▶ Bắt đầu";
+                    showToast("⏰ ĐÃ HẾT THỜI GIAN LÀM BÀI! Yêu cầu học sinh dừng bút.");
+                }
+            }, 1000);
+        }
+    }
+
+    function resetTimer() {
+        clearInterval(timerInterval);
+        isTimerRunning = false;
+        remainingSeconds = totalSeconds;
+        var btn = document.getElementById("btnTimerToggle");
+        btn.className = "btn btn-emerald";
+        btn.textContent = "▶ Bắt đầu";
+        updateTimerDisplay();
+    }
+
+    function changeTimerPreset(mins) {
+        totalSeconds = (parseInt(mins, 10) || 15) * 60;
+        resetTimer();
+    }
+
+    // =========================================================================
+    // 9. THÔNG BÁO TOAST & KHỞI TẠO TỰ ĐỘNG NGAY KHI MỞ TRANG
+    // =========================================================================
+    var toastTimer = null;
+    function showToast(msg) {
+        var box = document.getElementById("toastBox");
+        if (!box) return;
+        box.textContent = msg;
+        box.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () {
+            box.classList.remove("show");
+        }, 3500);
+    }
+
+    var isAppInitialized = false;
+    function initApp() {
+        if (isAppInitialized) return;
+        isAppInitialized = true;
+        shuffleBothExams();
+        updateTimerDisplay();
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initApp);
+    } else {
+        initApp();
+    }
+    initApp();
+</script>
+</body>
+</html>
